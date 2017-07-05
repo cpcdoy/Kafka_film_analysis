@@ -31,7 +31,6 @@ def dumper(nb_movies):
     i = 0
 
     producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
-
     while nb_movies > nb_dumped_movies:
         movie = tmdb.Movies(i)
         try:
