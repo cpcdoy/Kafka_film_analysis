@@ -36,15 +36,16 @@ def dumper(nb_movies):
         movie = tmdb.Movies(i)
         try:
             reponse = movie.info()
-            reviews = movie.reviews()
+            url = "http://akas.imdb.com/title/" + movie.imdb_id
+            review_list = get_movie_reviews(url)
+            if (len(review_list) == 0):
+                break
             nb_dumped_movies += 1
             print(nb_dumped_movies)
             genre_list = []
             for g in movie.genres:
                 genre_list.append(g["name"])
 
-            url = "http://akas.imdb.com/title/" + movie.imdb_id
-            review_list = get_movie_reviews(url)
 
             movie_obj = Movie(i, movie.title, movie.release_date, movie.popularity, movie.revenue, movie.budget, genre_list,  review_list, -1)
 
