@@ -10,7 +10,7 @@ object test {
 
     val Array(topics : String, numThreads : String) = Array("test,", "1")
     val sparkConf = new SparkConf().setAppName("test").setMaster("local[*]")
-    val ssc = new StreamingContext(sparkConf, Seconds(2))J
+    val ssc = new StreamingContext(sparkConf, Seconds(2))
     ssc.checkpoint("checkpoint")
 
     val kafkaConf = Map(
