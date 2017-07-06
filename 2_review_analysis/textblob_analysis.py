@@ -17,8 +17,10 @@ def word_feats(words):
 def analyze_from_jsonfile(path):
     data = json.loads(open(path).read())
     movies_json_string = json.loads(data)
-    movies = []
+    analyze_from_jsonstring(movies_json_string)
 
+def analyze_from_jsonstring(movies_json_string):
+    movies = []
     for mjs in movies_json_string:
         movies.append(DumpedMovie(mjs))
 

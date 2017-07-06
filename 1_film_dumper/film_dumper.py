@@ -35,11 +35,14 @@ def dumper(nb_movies):
     while nb_movies > nb_dumped_movies:
         movie = tmdb.Movies(i)
         try:
+            genre_list = []
+            review_list = []
             reponse = movie.info()
             url = "http://akas.imdb.com/title/" + movie.imdb_id
             review_list = get_movie_reviews(url)
             if (len(review_list) == 0):
-                break
+                i += 1
+                continue
             nb_dumped_movies += 1
             print(nb_dumped_movies)
             genre_list = []
@@ -50,15 +53,12 @@ def dumper(nb_movies):
             movie_obj = Movie(i, movie.title, movie.release_date, movie.popularity, movie.revenue, movie.budget, genre_list,  review_list, -1)
 
             json_str_dump = json.dumps(movie_obj.__dict__)
-            #json_str_dump = json.dumps(Movie(i, movie.title, movie.release_date, movie.popularity, movie.revenue, movie.budget, genre_list,  review_list, -1).__dict__)
             producer.send('test', key=b'film', value=json_str_dump.encode('ascii'))
 
             '''
             Just to test if json il well formed
             '''
             movie_list.append(movie_obj)
-            genre_list = []
-            review_list = []
         except:
             pass
         i += 1
