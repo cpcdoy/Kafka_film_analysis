@@ -14,18 +14,21 @@ class DumpedMovie():
 def word_feats(words):
     return dict([(word, True) for word in words])
 
-data = json.loads(open('../1_film_dumper/data/movie_data.json').read())
-movies_json_string = json.loads(data)
-movies = []
+def analyze_from_jsonfile(path):
+    data = json.loads(open(path).read())
+    movies_json_string = json.loads(data)
+    movies = []
 
-for mjs in movies_json_string:
-    movies.append(DumpedMovie(mjs))
+    for mjs in movies_json_string:
+        movies.append(DumpedMovie(mjs))
 
-for m in movies:
-    movie_popularity = 0
-    for r in m.review_list:
-        b = TextBlob(r)
-        for s in b.sentences:
-            movie_popularity += s.polarity
-    print(m.title + "--> nb_reviews: " + str(len(m.review_list)) + ", popularity: " + str(movie_popularity))
-    m.analyzed_popularity = movie_popularity
+    for m in movies:
+        movie_popularity = 0
+        for r in m.review_list:
+            b = TextBlob(r)
+            for s in b.sentences:
+                movie_popularity += s.polarity
+        print(m.title + "--> nb_reviews: " + str(len(m.review_list)) + ", popularity: " + str(movie_popularity))
+        m.analyzed_popularity = movie_popularity
+
+analyze_from_jsonfile('../1_film_dumper/data/movie_data.json')
