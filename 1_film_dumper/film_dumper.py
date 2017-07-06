@@ -3,6 +3,7 @@ import numpy as np
 from kafka import KafkaProducer
 import json, sys
 from movie_dumper import *
+
 class Review(json.JSONEncoder):
     def __init__(self, author, id, content):
         self.author = author
@@ -48,6 +49,7 @@ def dumper(nb_movies):
             movie_obj = Movie(i, movie.title, movie.release_date, movie.popularity, movie.revenue, movie.budget, genre_list,  review_list, -1)
 
             json_str_dump = json.dumps(movie_obj.__dict__)
+            #json_str_dump = json.dumps(Movie(i, movie.title, movie.release_date, movie.popularity, movie.revenue, movie.budget, genre_list,  review_list, -1).__dict__)
             producer.send('test', key=b'film', value=json_str_dump.encode('ascii'))
 
             '''
