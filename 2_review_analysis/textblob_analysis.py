@@ -5,6 +5,7 @@ import nltk.classify.util
 from nltk.classify import NaiveBayesClassifier
 from nltk.corpus import movie_reviews
 from textblob import TextBlob
+from kafka import KafkaConsumer
 
 class DumpedMovie():
     def __init__(self, jsonstring):
@@ -19,7 +20,7 @@ def analyze_from_jsonfile(path):
     movies_json_string = json.loads(data)
     analyze_from_jsonstring(movies_json_string)
 
-def analyze_from_jsonstring(movies_json_string):
+def analyze_from_jsonliststring(movies_json_string):
     movies = []
     for mjs in movies_json_string:
         movies.append(DumpedMovie(mjs))
@@ -29,8 +30,33 @@ def analyze_from_jsonstring(movies_json_string):
         for r in m.review_list:
             b = TextBlob(r)
             for s in b.sentences:
-                movie_popularity += s.polarity
+                word_count = len(s.words)
+                if (word_count != 0):
+                    movie_popularity += (s.polarity / word_count)
         print(m.title + "--> nb_reviews: " + str(len(m.review_list)) + ", popularity: " + str(movie_popularity))
         m.analyzed_popularity = movie_popularity
+        json_str_dump = json.dumps(m.__dict__)
+        #producer.send('test', key=b'film', value=json_str_dump.encode('ascii'))
 
-analyze_from_jsonfile('../1_film_dumper/data/movie_data.json')
+def analyze_from_jsonstring(mjs, producer):
+    m = DumpedMovie(mjs)
+    movie_popularity = 0
+    for r in m.review_list:
+        b = TextBlob(r)
+        for s in b.sentences:
+            word_count = len(s.words)
+            if (word_count != 0):
+                movie_popularity += (s.polarity / word_count)
+    print(m.title + "--> nb_reviews: " + str(len(m.review_list)) + ", popularity: " + str(movie_popularity))
+    m.analyzed_popularity = movie_popularity
+    json_str_dump = json.dumps(m.__dict__)
+    producer.send('popularity', key=b'film', value=json_str_dump.encode('ascii'))
+
+#analyze_from_jsonlistfile('../1_film_dumper/data/movie_data.json')
+consumer = KafkaConsumer('test', group_id='kafka-streaming-example', bootstrap_servers=['localhost:9092'])
+producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
+
+for message in consumer:
+    consumer.commit()
+    json_movie = json.loads(message.value.decode("utf-8"))
+    analyze_from_jsonstring(json_movie, producer)
