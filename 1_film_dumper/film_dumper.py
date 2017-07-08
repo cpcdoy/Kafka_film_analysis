@@ -47,8 +47,9 @@ def dumper(nb_movies):
                 for r in reviews["results"]:
                     review_list.append(r["content"])
 
-                json_str_dump = json.dumps(Movie(i, movie.title, movie.release_date, movie.popularity, movie.revenue, movie.budget, genre_list,  review_list, -1).__dict__)
+                json_str_dump = json.dumps(Movie(i, movie.title, movie.release_date, str(movie.popularity), movie.revenue, movie.budget, genre_list,  review_list, -1).__dict__)
                 producer.send('test', key=b'film', value=json_str_dump.encode('ascii'))
+                producer.flush()
 
                 genre_list = []
                 review_list = []
