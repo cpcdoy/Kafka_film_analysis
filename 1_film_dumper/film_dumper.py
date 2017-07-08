@@ -50,7 +50,7 @@ def dumper(nb_movies):
                 genre_list.append(g["name"])
 
 
-            movie_obj = Movie(i, movie.title, movie.release_date, movie.popularity, movie.revenue, movie.budget, genre_list,  review_list, -1)
+            movie_obj = Movie(str(i), movie.title, movie.release_date, str(movie.popularity), str(movie.revenue), str(movie.budget), genre_list,  review_list, str(-1))
 
             json_str_dump = json.dumps(movie_obj.__dict__)
             producer.send('test', key=b'film', value=json_str_dump.encode('ascii'))
