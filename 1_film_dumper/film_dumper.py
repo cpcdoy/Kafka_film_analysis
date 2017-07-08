@@ -54,6 +54,7 @@ def dumper(nb_movies):
 
             json_str_dump = json.dumps(movie_obj.__dict__)
             producer.send('test', key=b'film', value=json_str_dump.encode('ascii'))
+            producer.flush()
 
             '''
             Just to test if json il well formed
