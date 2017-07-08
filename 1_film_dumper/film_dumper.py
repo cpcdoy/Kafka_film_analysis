@@ -2,6 +2,7 @@ import tmdbsimple as tmdb
 import numpy as np
 from kafka import KafkaProducer
 import json, sys
+from movie_dumper import *
 
 class Review(json.JSONEncoder):
     def __init__(self, author, id, content):
@@ -34,25 +35,31 @@ def dumper(nb_movies):
     while nb_movies > nb_dumped_movies:
         movie = tmdb.Movies(i)
         try:
+            genre_list = []
+            review_list = []
             reponse = movie.info()
-            reviews = movie.reviews()
-            if (len(reviews["results"])):
-                print('Found review: ', i)
-                nb_dumped_movies += 1
-                print(nb_dumped_movies)
-                genre_list = []
-                for g in movie.genres:
-                    genre_list.append(g["name"])
+            url = "http://akas.imdb.com/title/" + movie.imdb_id
+            review_list = get_movie_reviews(url)
+            if (len(review_list) == 0):
+                i += 1
+                continue
+            nb_dumped_movies += 1
+            print(nb_dumped_movies)
+            genre_list = []
+            for g in movie.genres:
+                genre_list.append(g["name"])
 
-                for r in reviews["results"]:
-                    review_list.append(r["content"])
 
-                json_str_dump = json.dumps(Movie(i, movie.title, movie.release_date, str(movie.popularity), movie.revenue, movie.budget, genre_list,  review_list, -1).__dict__)
-                producer.send('test', key=b'film', value=json_str_dump.encode('ascii'))
-                producer.flush()
+            movie_obj = Movie(i, movie.title, movie.release_date, movie.popularity, movie.revenue, movie.budget, genre_list,  review_list, -1)
 
-                genre_list = []
-                review_list = []
+            json_str_dump = json.dumps(movie_obj.__dict__)
+            producer.send('test', key=b'film', value=json_str_dump.encode('ascii'))
+            producer.flush()
+
+            '''
+            Just to test if json il well formed
+            '''
+            movie_list.append(movie_obj)
         except:
             pass
         i += 1
